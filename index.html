@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <title>Web前端学习与分享</title>
+
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/reveal.css" />
+    <link rel="stylesheet" href="css/theme/black.css" />
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/monokai.css" />
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.type = 'text/css'
+      link.href = window.location.search.match(/print-pdf/gi)
+        ? 'css/print/pdf.css'
+        : 'css/print/paper.css'
+      document.getElementsByTagName('head')[0].appendChild(link)
+    </script>
+  </head>
+
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>前端工程</h1>
+          <h3>利用工具提高开发效率</h3>
+          <br />
+          <p><small>王晓璐</small></p>
+        </section>
+        <section>
+          <h2>目录</h2>
+          <ul>
+            <li>技术选型</li>
+            <li>顺滑的自动化构建流程</li>
+            <li>扩展性好的项目结构</li>
+            <li>清爽的编辑器配置</li>
+          </ul>
+        </section>
+        <section>
+          <h2>技术选型</h2>
+          <p>
+            当我们从0开始启动一个前端项目时
+            <br />
+            首先要做的是技术选型
+          </p>
+          <img data-src="./image/1.png" alt="技术选型" />
+          <p>
+            <small>
+              图片来源：
+              <a href="https://github.com/fouber/blog/issues/10" target="_blank">
+                https://github.com/fouber/blog/issues/10
+              </a>
+            </small>
+          </p>
+        </section>
+        <section>
+          <img data-src="./image/2.png" alt="前端框架库趋势图" />
+          <p>
+            <small>
+              流行前端库的2018年npm下载量对比图
+              <br />
+              图片来源：
+              <a
+                href="https://levelup.gitconnected.com/a-recap-of-frontend-development-in-2018-715724c9441d"
+                target="_blank"
+              >
+                A Recap of Frontend Development in 2018
+              </a>
+            </small>
+          </p>
+        </section>
+        <section>
+          <h2>顺滑的自动化构建流程</h2>
+          <p>完成技术选型后，就要考虑怎么开始</p>
+          <p class="fragment fade-in-then-out">二话不说，先写页面</p>
+          <p class="fragment fade-down">先搭脚手架，打好项目根基</p>
+        </section>
+        <section>
+          <p class="fragment highlight-red">徒手搭建项目框架、编写自动化构建任务</p>
+          <p class="fragment highlight-green">选择现有的、合适的脚手架</p>
+        </section>
+        <section>
+          <ul>
+            <li>使用vue单页面的开发方式，vue-cli是首选</li>
+            <li>开发vue多页面应用，github上有很多对应的模板</li>
+            <li>使用weex+vue开发应用，官网准备了配套的weex-toolkit</li>
+            <li>使用nw/electron+vue开发应用，有厉害的小伙伴搭建好了脚手架</li>
+            <li>在apicloud中使用vue，也不是什么难题</li>
+          </ul>
+        </section>
+        <section>
+          <p>
+            只是想开发一款普通的webApp，或者开发浏览器扩展，或者其他各种，你可以到yeoman上看看有没有适合你需求的脚手架
+          </p>
+          <a href="https://yeoman.io/" target="_blank">
+            <img data-src="./image/yeoman-logo.png" alt="yeoman" />
+          </a>
+        </section>
+        <section>
+          <p>自动化构建任务举例</p>
+          <pre>
+            <code class="hljs" data-trim data-line-numbers="4,8-9">
+              function styles() {
+                return src('app/styles/**/*.scss')
+                  .pipe(
+                    $.sass
+                      .sync({
+                        outputStyle: 'expanded',
+                        precision: 10,
+                        includePaths: ['.']
+                      })
+                      .on('error', $.sass.logError)
+                  )
+                  .pipe($.postcss([autoprefixer()]))
+                  .pipe($.if(!isProd, $.sourcemaps.write()))
+                  .pipe(dest('.tmp/styles'))
+                  .pipe(server.reload({ stream: true }));
+              }
+            </code>
+          </pre>
+        </section>
+        <section>
+          <pre>
+            <code class="hljs" data-trim data-line-numbers="4,8-9">
+              function scripts() {
+                return src('app/scripts/**/*.js')
+                  .pipe($.plumber())
+                  .pipe($.babel())
+                  .pipe($.if(!isProd, $.sourcemaps.write('.')))
+                  .pipe(dest('.tmp/scripts'))
+                  .pipe(server.reload({ stream: true }));
+              }
+            </code>
+          </pre>
+        </section>
+        <section>
+          <pre>
+            <code class="hljs" data-trim data-line-numbers="4,8-9">
+              function html() {
+                return src('app/**/*.html')
+                  .pipe(
+                    $.fileInclude({
+                      prefix: '@', //变量前缀 @include
+                      basepath: 'app/_include', //引用文件路径
+                      indent: true //保留文件的缩进
+                    })
+                  )
+                  .pipe(
+                    $.inlineSource({
+                      rootpath: path.resolve('.tmp'),
+                      compress: false
+                    })
+                  )
+                  .pipe($.useref({ searchPath: ['.tmp', 'app', '.'] }))
+                  .pipe($.if(/\.js$/, $.uglify({ compress: { drop_console: true } })))
+                  .pipe($.if(/\.css$/, $.postcss([cssnano({ safe: true, autoprefixer: false })])))
+                  .pipe(
+                    $.if(
+                      /\.html$/,
+                      $.htmlmin({
+                        collapseWhitespace: true,
+                        minifyCSS: true,
+                        minifyJS: { compress: { drop_console: true } },
+                        processConditionalComments: true,
+                        removeComments: true,
+                        removeEmptyAttributes: true,
+                        removeScriptTypeAttributes: true,
+                        removeStyleLinkTypeAttributes: true
+                      })
+                    )
+                  )
+                  .pipe(dest('dist'));
+              }
+            </code>
+          </pre>
+        </section>
+        <section>
+          <h2>扩展性好的项目结构</h2>
+          <p>
+            选择好了脚手架，前期工作还不算完
+            <br />
+            我们还要进行项目结构的设计和安排
+          </p>
+        </section>
+        <section>
+          <img data-src="./image/4.png" alt="项目结构举例" />
+        </section>
+        <section>
+          <img data-src="./image/components.png" alt="组件化开发" />
+          <p>
+            <small>
+              图片来源：
+              <a href="https://github.com/fouber/blog/issues/10" target="_blank">
+                https://github.com/fouber/blog/issues/10
+              </a>
+            </small>
+          </p>
+        </section>
+        <section>
+          <h2>清爽的编辑器配置和代码格式化</h2>
+          <p>可能涉及到个人的编程习惯，但有一些又需要团队配合和遵守</p>
+          <p>对代码格式化的统一要求</p>
+          <ul>
+            <li>使用空格进行缩进</li>
+            <li>JavaScript中使用单引号</li>
+            <li>驼峰式的命名规范</li>
+            <li>空格的使用</li>
+            <li>分号的使用等等</li>
+          </ul>
+        </section>
+        <section>
+          <p>时刻不忘美化自己的工作环境</p>
+          <img src="./image/5.png" alt="漂亮的字体和颜色高亮" />
+          <p><small>选择漂亮的字体和颜色高亮</small></p>
+        </section>
+        <section>
+          <img src="./image/6.png" alt="用彩虹色标记缩进" />
+          <p><small>用彩虹色标记缩进</small></p>
+        </section>
+        <section style="text-align: left;">
+          <h1>结束</h1>
+          <p>
+            - 感谢
+            <a href="https://github.com/hakimel/reveal.js" target="_blank">reveal.js</a>
+            ，帮助我制作了本次PPT
+            <br />
+            - 感谢
+            <a href="https://github.com/fouber/blog/issues/10" target="_blank">这篇文章</a>
+            ，给了我灵感和参考
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <script src="js/reveal.js"></script>
+
+    <script>
+      // More info about config & dependencies:
+      // - https://github.com/hakimel/reveal.js#configuration
+      // - https://github.com/hakimel/reveal.js#dependencies
+      Reveal.initialize({
+        transition: 'convex',
+        dependencies: [
+          { src: 'plugin/markdown/marked.js' },
+          { src: 'plugin/markdown/markdown.js' },
+          { src: 'plugin/notes/notes.js', async: true },
+          { src: 'plugin/highlight/highlight.js', async: true }
+        ]
+      })
+    </script>
+  </body>
+</html>
