@@ -91,11 +91,46 @@
         </section>
         <section>
           <ul>
-            <li>使用vue单页面的开发方式，vue-cli是首选</li>
-            <li>开发vue多页面应用，github上有很多对应的模板</li>
-            <li>使用weex+vue开发应用，官网准备了配套的weex-toolkit</li>
-            <li>使用nw/electron+vue开发应用，有厉害的小伙伴搭建好了脚手架</li>
-            <li>在apicloud中使用vue，也不是什么难题</li>
+            <li>
+              使用vue单页面的开发方式，
+              <a href="https://github.com/vuejs/vue-cli/tree/v2#vue-cli--" target="_blank">
+                vue-cli是首选
+              </a>
+            </li>
+            <li>
+              开发vue多页面应用，github上有很多
+              <a href="https://github.com/search?q=vue%E5%A4%9A%E9%A1%B5%E9%9D%A2" target="_blank">
+                对应的模板
+              </a>
+            </li>
+            <li>
+              使用weex+vue开发应用，官网准备了配套的
+              <a
+                href="https://weex.apache.org/zh/guide/develop/create-a-new-app.html"
+                target="_blank"
+              >
+                weex-toolkit
+              </a>
+            </li>
+            <li>
+              使用
+              <a
+                href="https://github.com/anchengjian/anchengjian.github.io/blob/master/posts/2017/vuejs-webpack-nwjs.md"
+                target="_blank"
+              >
+                nw
+              </a>
+              /
+              <a href="https://github.com/SimulatedGREG/electron-vue" target="_blank">electron</a>
+              +vue开发应用，有厉害的小伙伴搭建好了脚手架
+            </li>
+            <li>
+              在
+              <a href="https://github.com/xiaoqiang730730/vue_apicloud" target="_blank">
+                apicloud中使用vue
+              </a>
+              ，也不是什么难题
+            </li>
           </ul>
         </section>
         <section>
@@ -113,13 +148,7 @@
               function styles() {
                 return src('app/styles/**/*.scss')
                   .pipe(
-                    $.sass
-                      .sync({
-                        outputStyle: 'expanded',
-                        precision: 10,
-                        includePaths: ['.']
-                      })
-                      .on('error', $.sass.logError)
+                    $.sass.sync().on('error', $.sass.logError)  // //使用sass处理
                   )
                   .pipe($.postcss([autoprefixer()]))
                   .pipe($.if(!isProd, $.sourcemaps.write()))
@@ -134,7 +163,7 @@
             <code class="hljs" data-trim data-line-numbers="4,8-9">
               function scripts() {
                 return src('app/scripts/**/*.js')
-                  .pipe($.plumber())
+                  .pipe($.plumber())  // gulp-plumber 一个专门为gulp而生的错误处理库
                   .pipe($.babel())
                   .pipe($.if(!isProd, $.sourcemaps.write('.')))
                   .pipe(dest('.tmp/scripts'))
