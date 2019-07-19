@@ -82,7 +82,7 @@
         <section>
           <h2>顺滑的自动化构建流程</h2>
           <p>完成技术选型后，就要考虑怎么开始</p>
-          <p class="fragment fade-in-then-out">二话不说，先写页面</p>
+          <p class="fragment fade-down">二话不说，先写页面</p>
           <p class="fragment fade-down">先搭脚手架，打好项目根基</p>
         </section>
         <section>
@@ -272,8 +272,17 @@
     </div>
 
     <script src="js/reveal.js"></script>
-
     <script>
+      var link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.type = 'text/css'
+      link.href = window.location.search.match(/print-pdf/gi)
+        ? 'css/print/pdf.css'
+        : 'css/print/paper.css'
+      document.getElementsByTagName('head')[0].appendChild(link)
+    </script>
+    <script>
+      Reveal.configure({ pdfMaxPagesPerSlide: 1, pdfSeparateFragments: false })
       // More info about config & dependencies:
       // - https://github.com/hakimel/reveal.js#configuration
       // - https://github.com/hakimel/reveal.js#dependencies
